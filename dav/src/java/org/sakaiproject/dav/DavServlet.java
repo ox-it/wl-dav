@@ -1674,10 +1674,13 @@ public class DavServlet extends HttpServlet
 	 *        The http servlet response object.
 	 * @return any error message, or null if all went well.
 	 */
-	private String doContent(String id, HttpServletRequest req, HttpServletResponse res)
+	private String doContent(String id, HttpServletRequest req, HttpServletResponse res) throws IOException
 	{
 	        if (prohibited(id))
-			return "You do not have permission to view this resource";
+	        {
+	        	res.sendError(HttpServletResponse.SC_FORBIDDEN);
+	        	return "You do not have permission to view this resource";
+	        }
 
 		// resource or collection? check the properties (also finds bad id and checks permissions)
 		boolean isCollection = false;
@@ -1688,21 +1691,25 @@ public class DavServlet extends HttpServlet
 		}
 		catch (PermissionException e)
 		{
+			res.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return "You do not have permission to view this resource";
 		}
 		catch (IdUnusedException e)
 		{
+			res.sendError(HttpServletResponse.SC_NOT_FOUND, id);
 			return "This resource does not exist";
 		}
 		catch (EntityPropertyNotDefinedException e)
 		{
+			res.sendError(HttpServletResponse.SC_NOT_FOUND, id);
 			return "This resource does not exist";
 		}
 		catch (EntityPropertyTypeException e)
 		{
+			res.sendError(HttpServletResponse.SC_NOT_FOUND, id);
 			return "This resource does not exist";
 		}
-
+		
 		// for resources
 		if (!isCollection)
 		{
