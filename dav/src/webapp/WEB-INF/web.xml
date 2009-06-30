@@ -27,6 +27,10 @@
             <param-name>set.cookie</param-name>
             <param-value>false</param-value>
         </init-param>
+	<init-param>
+              <param-name>sakai.session.auth</param-name>
+              <param-value>basic</param-value>	
+	</init-param>
     </filter>
 
     <filter-mapping>
