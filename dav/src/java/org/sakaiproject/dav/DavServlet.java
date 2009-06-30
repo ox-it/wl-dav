@@ -481,7 +481,12 @@ public class DavServlet extends HttpServlet
 	 * Array of file patterns we are not supposed to accept on PUT
 	 */
 	private String[] ignorePatterns = null;
-
+	
+	/**
+	 * Output cookies for DAV requests
+	 */
+	private boolean useCookies = false;
+	
 	// --------------------------------------------------------- Public Methods
 
 	/**
@@ -555,6 +560,9 @@ public class DavServlet extends HttpServlet
 			e.printStackTrace();
 			throw new IllegalStateException();
 		}
+		
+		// Check cookie configuration
+		useCookies = ServerConfigurationService.getBoolean("webdav.cookies", false);
 	}
 
 	/** create the info */
@@ -980,6 +988,7 @@ public class DavServlet extends HttpServlet
 
 				Authentication a = AuthenticationManager.authenticate(e);
 				if ((UsageSessionService.getSession() == null || UsageSessionService.getSession().isClosed())
+						|| !a.getEid().equals(UsageSessionService.getSession().getUserEid()))
 						&& !UsageSessionService.login(a, req))
 				{
 					// login failed
@@ -1001,11 +1010,14 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 
-		// Set the client cookie as this is not done by the RequestFilter for dav requests.
+		// Set the client cookie if enabled as this is not done by the RequestFilter for dav requests.
 		// This is not required by DAV clients but may be helpful in some load-balancing
-		// configurations for session affinity across app servers.
+		// configurations for session affinity across app servers. However, some Windows DAV clients
+		// share cookies with IE7 which can lead to confusing results in the browser session.
 		
-		req.setAttribute(RequestFilter.ATTR_SET_COOKIE, true);
+		if (useCookies) {
+			req.setAttribute(RequestFilter.ATTR_SET_COOKIE, true);
+		}
 		
 		// Setup... ?
 
