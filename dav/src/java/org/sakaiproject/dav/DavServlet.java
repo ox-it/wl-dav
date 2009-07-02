@@ -987,8 +987,8 @@ public class DavServlet extends HttpServlet
 				}
 
 				Authentication a = AuthenticationManager.authenticate(e);
-				if ((UsageSessionService.getSession() == null || UsageSessionService.getSession().isClosed())
-						|| !a.getEid().equals(UsageSessionService.getSession().getUserEid())
+				if ((UsageSessionService.getSession() == null || UsageSessionService.getSession().isClosed()
+						|| !a.getEid().equals(UsageSessionService.getSession().getUserEid()))
 						&& !UsageSessionService.login(a, req))
 				{
 					// login failed
