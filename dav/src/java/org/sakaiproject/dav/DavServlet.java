@@ -1066,6 +1066,14 @@ public class DavServlet extends HttpServlet
 			String eid = prin.getName();
 			String pw = ((DavPrincipal) prin).getPassword();
 			Evidence e = new IdPwEvidence(eid, pw);
+			
+			// Microsoft might be sending bad usernames. Added some logging so we can debug.
+			// http://support.microsoft.com/?kbid=315621
+			if (eid.startsWith(req.getServerName()) || eid.startsWith("http://") || eid.indexOf('\\') !=  -1)
+			{
+				String ua = req.getHeader("User-Agent");
+				M_log.warn("Unexpected EID '"+ eid+ "' from user agent of '"+ ua+ "'");
+			}
 
 			// in older versions of this code, we didn't authenticate
 			// if there was a session for this user. Unfortunately the
