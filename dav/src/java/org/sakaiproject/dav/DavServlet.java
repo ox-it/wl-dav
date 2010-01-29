@@ -1011,7 +1011,7 @@ public class DavServlet extends HttpServlet
 			if (eid.startsWith(req.getServerName()) || eid.startsWith("http://") || eid.indexOf('\\') !=  -1)
 			{
 				String ua = req.getHeader("User-Agent");
-				log.warn("Unexpected EID '"+ eid+ "' from user agent of '"+ ua+ "'");
+				M_log.warn("Unexpected EID '"+ eid+ "' from user agent of '"+ ua+ "'");
 			}
 
 			// in older versions of this code, we didn't authenticate
