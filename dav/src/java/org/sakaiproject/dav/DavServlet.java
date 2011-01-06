@@ -4183,6 +4183,7 @@ public class DavServlet extends HttpServlet
 		}
 		catch (PermissionException e)
 		{
+			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return false;
 		}
 		catch (InUseException e)
