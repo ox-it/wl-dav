@@ -2632,7 +2632,7 @@ public class DavServlet extends HttpServlet
 
 		// Don't delete the resource and add it again
 
-		// Add the resource
+		// Update the resource
 
 		String contentType = "";
 		InputStream inputStream = req.getInputStream();
@@ -2659,14 +2659,7 @@ public class DavServlet extends HttpServlet
 			String mycopyright = "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName()
 					+ ". All Rights Reserved. ";
 
-			// use this code rather than the long form of addResource
-			// because it doesn't add an extension. Delete doesn't, so we have
-			// to match, and I'd just as soon be able to create items with no extension anyway
-			
-			ContentResourceEdit edit = contentHostingService.addResource(adjustId(path));
-			edit.setContentType(contentType);
-			edit.setContent(inputStream);
-			ResourcePropertiesEdit p = edit.getPropertiesEdit();
+			ContentResourceEdit edit;
 
 			try {
 			    if (oldGroups != null && !oldGroups.isEmpty())
@@ -2694,6 +2687,9 @@ public class DavServlet extends HttpServlet
 					}
 				}
 			}
+
+			edit.setContentType(contentType);
+			edit.setContent(inputStream);
 
 			if (newfile)
 			{
@@ -2744,7 +2740,15 @@ public class DavServlet extends HttpServlet
 			M_log.warn("SAKAIDavServlet.doPut() ServerOverloadException:" + e.getMessage());
 			resp.setStatus(SakaidavStatus.SC_SERVICE_UNAVAILABLE);
 			return;
+		} catch (InUseException e) {
+			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
+			return;
+		} catch (TypeException e) {
+			M_log.warn("SAKAIDavServlet.doPut() TypeException:" + e.getMessage());
+			resp.sendError(HttpServletResponse.SC_CONFLICT);
+			return;
 		}
+
 		resp.setStatus(HttpServletResponse.SC_CREATED);
 
 		// Removing any lock-null resource which would be present
