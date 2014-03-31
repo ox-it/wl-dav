@@ -2661,8 +2661,27 @@ public class DavServlet extends HttpServlet
 
 			ContentResourceEdit edit;
 
+			boolean newfile = false;
+			String resourcePath = adjustId(path);
 
+			// Since editResource doesn't throw IdUnusedException correctly, try first with getResource
+			try
+			{
+				contentHostingService.getResource(resourcePath);
+			}
+			catch (IdUnusedException e)
+			{
+				newfile = true;
+			}
 
+			if (newfile)
+			{
+				edit = contentHostingService.addResource(resourcePath);
+			}
+			else
+			{
+				edit = contentHostingService.editResource(resourcePath);
+			}
 
 			edit.setContentType(contentType);
 			edit.setContent(inputStream);
@@ -2720,6 +2739,10 @@ public class DavServlet extends HttpServlet
 		} catch (TypeException e) {
 			M_log.warn("SAKAIDavServlet.doPut() TypeException:" + e.getMessage());
 			resp.sendError(HttpServletResponse.SC_CONFLICT);
+			return;
+		} catch (IdUnusedException inconsistent) {
+			M_log.error("SAKAIDavServlet.doPut() Inconsistently got IdUnusedException after checking resource exists: " + inconsistent.getMessage());
+			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
