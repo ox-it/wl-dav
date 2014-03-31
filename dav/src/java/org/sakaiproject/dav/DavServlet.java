@@ -2594,15 +2594,6 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 
-		ResourceProperties oldProps = null;
-		Collection oldGroups = null;
-		boolean oldPubView = false;
-		boolean oldHidden = false;
-		Time releaseDate = null;
-		Time retractDate = null;
-		
-		boolean newfile = true;
-
 		if (isLocked(req))
 		{
 			resp.sendError(SakaidavStatus.SC_LOCKED);
@@ -2639,81 +2630,7 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 
-		// Try to delete the resource
-		try
-		{
-			// The existing document may be a collection or a file.
-			boolean isCollection = contentHostingService.getProperties(adjustId(path)).getBooleanProperty(
-					ResourceProperties.PROP_IS_COLLECTION);
-
-			if (isCollection)
-			{
-				contentHostingService.removeCollection(adjustId(path));
-			}
-			else
-			{
-			    	String id = adjustId(path);
-				// save original properties; we're just updating the file
-				oldProps = contentHostingService.getProperties(id);
-				newfile = false;
-
-				try {
-				    ContentResource resource = contentHostingService.getResource(id);
-				    oldGroups = resource.getGroups();
-				    oldHidden = resource.isHidden();
-				    releaseDate = resource.getReleaseDate();
-				    retractDate = resource.getRetractDate();
-				} catch (Exception e) {M_log.info("doPut fail 1" + e);} ;
-
-				try {
-				    if (!contentHostingService.isInheritingPubView(id))
-					if (contentHostingService.isPubView(id)) 
-					    oldPubView = true;
-				} catch (Exception e) {M_log.info("doPut fail 2" + e);};
-				
-				contentHostingService.removeResource(adjustId(path));
-			}
-		}
-		catch (PermissionException e)
-		{
-			// Normal situation
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (InUseException e)
-		{
-			// Normal situation
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN); // %%%
-			return;
-		}
-		catch (IdUnusedException e)
-		{
-			// Normal situation - nothing to do
-		}
-		catch (EntityPropertyNotDefinedException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - EntityPropertyNotDefinedException " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (TypeException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - TypeException " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (EntityPropertyTypeException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - EntityPropertyType " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (ServerOverloadException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - ServerOverloadException " + path);
-			resp.sendError(SakaidavStatus.SC_SERVICE_UNAVAILABLE);
-			return;
-		}
+		// Don't delete the resource and add it again
 
 		// Add the resource
 
