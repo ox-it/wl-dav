@@ -2661,32 +2661,8 @@ public class DavServlet extends HttpServlet
 
 			ContentResourceEdit edit;
 
-			try {
-			    if (oldGroups != null && !oldGroups.isEmpty())
-				edit.setGroupAccess(oldGroups);
-			} catch (Exception e) {M_log.info("doPut fail 3 " + e + " " + oldGroups);};
-
-			try {
-			    edit.setAvailability(oldHidden, releaseDate, retractDate);
-			} catch (Exception e) {M_log.info("doPut fail 4 " + e);};
 
 
-			// copy old props, if any
-			if (oldProps != null)
-			{
-				Iterator it = oldProps.getPropertyNames();
-
-				while (it.hasNext())
-				{
-					String pname = (String) it.next();
-
-					// skip any live properties
-					if (!oldProps.isLiveProperty(pname))
-					{
-						p.addProperty(pname, oldProps.getProperty(pname));
-					}
-				}
-			}
 
 			edit.setContentType(contentType);
 			edit.setContent(inputStream);
@@ -2699,8 +2675,6 @@ public class DavServlet extends HttpServlet
 
 			// commit the change
 			contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
-			if (oldPubView)
-			    contentHostingService.setPubView(adjustId(path), true);
 
 		}
 		catch (IdUsedException e)
