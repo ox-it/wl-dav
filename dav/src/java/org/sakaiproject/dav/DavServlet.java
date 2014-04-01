@@ -2653,11 +2653,6 @@ public class DavServlet extends HttpServlet
 
 		try
 		{
-			User user = UserDirectoryService.getCurrentUser();
-
-			TimeBreakdown timeBreakdown = TimeService.newTime().breakdownLocal();
-			String mycopyright = "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName()
-					+ ". All Rights Reserved. ";
 
 			ContentResourceEdit edit;
 
@@ -2677,6 +2672,12 @@ public class DavServlet extends HttpServlet
 			if (newfile)
 			{
 				edit = contentHostingService.addResource(resourcePath);
+				final ResourcePropertiesEdit p = edit.getPropertiesEdit();
+				p.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+
+				User user = UserDirectoryService.getCurrentUser();
+				final TimeBreakdown timeBreakdown = TimeService.newTime().breakdownLocal();
+				p.addProperty(ResourceProperties.PROP_COPYRIGHT, "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName() + ". All Rights Reserved. ");
 			}
 			else
 			{
@@ -2685,12 +2686,6 @@ public class DavServlet extends HttpServlet
 
 			edit.setContentType(contentType);
 			edit.setContent(inputStream);
-
-			if (newfile)
-			{
-				p.addProperty(ResourceProperties.PROP_COPYRIGHT, mycopyright);
-				p.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-			}
 
 			// commit the change
 			contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
