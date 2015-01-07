@@ -117,7 +117,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.catalina.util.DOMWriter;
-import org.apache.catalina.util.MD5Encoder;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.XMLWriter;
 import org.apache.commons.logging.Log;
@@ -3209,7 +3209,7 @@ public class DavServlet extends HttpServlet
 			String lockTokenStr = req.getServletPath() + "-" + lock.type + "-" + lock.scope + "-" + req.getUserPrincipal() + "-"
 					+ lock.depth + "-" + lock.owner + "-" + lock.tokens + "-" + lock.expiresAt + "-" + System.currentTimeMillis()
 					+ "-" + secret;
-			lockToken = MD5Encoder.encode(md5Helper.digest(lockTokenStr.getBytes()));
+			lockToken = Hex.encodeHexString(md5Helper.digest(lockTokenStr.getBytes()));
 
 			if ((exists) && (object instanceof DirContext) && (lock.depth == INFINITY))
 			{
